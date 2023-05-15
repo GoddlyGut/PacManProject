@@ -15,6 +15,8 @@ namespace PacManProject
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
+            _graphics.PreferredBackBufferWidth = 600;
+            _graphics.PreferredBackBufferHeight = 600;
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }
@@ -47,6 +49,8 @@ namespace PacManProject
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
+
+            level.Draw(gameTime, _spriteBatch);
 
             // TODO: Add your drawing code here
 
