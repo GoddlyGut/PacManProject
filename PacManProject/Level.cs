@@ -1,10 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Framework.Utilities.Deflate;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection.Metadata;
+using System.Xml.Linq;
 
 namespace PacManProject
 {
@@ -21,9 +24,16 @@ namespace PacManProject
     {
         private Tile[,] tiles;
 
-
-        public Level(string lvlPath)
+        public ContentManager Content
         {
+            get { return content; }
+        }
+        ContentManager content;
+
+        public Level(string lvlPath, IServiceProvider serviceProvider, int levelIndex)
+        {
+            content = new ContentManager(serviceProvider, "Content");
+
             LoadLevel(lvlPath);
         }
 
@@ -38,6 +48,7 @@ namespace PacManProject
                 {
                     string line = reader.ReadLine();
                     width = line.Length;
+                    Debug.WriteLine(width);
                     while (line != null)
                     {
 
@@ -58,6 +69,8 @@ namespace PacManProject
                     }
 
                     tiles = new Tile[width, lines.Count];
+
+                    Debug.WriteLine(Height);
 
                     for (int y = 0; y < Height; ++y)
                     {
@@ -101,9 +114,9 @@ namespace PacManProject
             switch (type)
             {
                 case '-':
-                    return new Tile(null, TileCollision.Impassable);
+                    return new Tile(Content.Load<Texture2D>("pac_man_blank_space"), TileCollision.Impassable);
                 default:
-                    return new Tile(null, TileCollision.Passable);
+                    return new Tile(Content.Load<Texture2D>("pac_man_wall"), TileCollision.Passable);
             }
         }
 

@@ -31,7 +31,7 @@ namespace PacManProject
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            level = new Level(@"Content\Levels\0.txt");
+            level = new Level(@"Content\Levels\0.txt", Services, 0);
 
             // TODO: use this.Content to load your game content here
         }
@@ -50,9 +50,14 @@ namespace PacManProject
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
+
+            _spriteBatch.Begin();
+
             level.Draw(gameTime, _spriteBatch);
 
             // TODO: Add your drawing code here
+
+            _spriteBatch.End();
 
             base.Draw(gameTime);
         }
