@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Framework.Utilities.Deflate;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection.Metadata;
@@ -22,7 +23,10 @@ namespace PacManProject
 
     public class Level
     {
-        private Tile[,] tiles;
+        private Tile[,] firstLayerTiles;
+        private Tile[,] secondLayerTitles;
+        private bool hasPlayerStart = false;
+
 
         public ContentManager Content
         {
@@ -41,6 +45,7 @@ namespace PacManProject
         {
             List<string> lines = new List<string>();
             int width;
+            
 
             using (Stream fileStream = TitleContainer.OpenStream(lvlPath))
             {
@@ -48,14 +53,15 @@ namespace PacManProject
                 {
                     string line = reader.ReadLine();
                     width = line.Length;
-                    Debug.WriteLine(width);
+
                     while (line != null)
                     {
+                        
 
                         if (line.Length != width)
                             throw new Exception(String.Format("The length of line {0} is different from all preceding lines.", lines.Count + 1));
 
-                        CheckForForbiddenCharacters(line, lines.Count + 1);
+                        CheckForCharacters(line, lines.Count + 1);
 
                         lines.Add(line);
                         line = reader.ReadLine();
@@ -63,14 +69,15 @@ namespace PacManProject
                     }
 
                     if (lines.Count == 0)
-                    {
                         // Handle the case when the file is empty
                         throw new Exception("The file is empty.");
-                    }
+                    
 
-                    tiles = new Tile[width, lines.Count];
+                    firstLayerTiles = new Tile[width, lines.Count];
+                    secondLayerTitles = new Tile[width, lines.Count];
 
-                    Debug.WriteLine(Height);
+                    if (!hasPlayerStart)
+                        throw new System.Exception("ERROR: Each level must have a player start location");
 
                     for (int y = 0; y < Height; ++y)
                     {
@@ -78,20 +85,41 @@ namespace PacManProject
                         {
                             // to load each tile.
                             char tileType = lines[y][x];
-                            tiles[x, y] = LoadTile(tileType, x, y);
+
+                            firstLayerTiles[x, y] = LoadTile(tileType, 0, x, y);
+
+                            switch (tileType)
+                            {
+                                case 'P':
+                                case 'p':
+                                    secondLayerTitles[x, y] = LoadTile(tileType, 1, x, y);
+                                    break;
+                            }
+
+
                         }
                     }
                 }
             }
+
+            
         }
 
-        private void CheckForForbiddenCharacters(string line, int lineNumber)
+
+        private void CheckForCharacters(string line, int lineNumber)
         {
             foreach (char c in line)
             {
                 if (c == '.') { }
                 else if (c == '-') { }
                 else if (c == 'e' || c == 'E') { }
+                else if (c == 'p' || c == 'P') 
+                {
+                    if (hasPlayerStart)
+                        throw new System.Exception("ERROR: Unable to have more than one player start location");
+
+                    hasPlayerStart = true;
+                }
                 else
                 {
                     throw new System.Exception(String.Format("ERROR: Value of {0} is not recognized on line(" + lineNumber + ") !", c == ' ' ? "(SPACE)" : c));
@@ -99,25 +127,46 @@ namespace PacManProject
             }
         }
 
+
+
         public int Width
         {
-            get { return tiles.GetLength(0); }
+            get { return firstLayerTiles.GetLength(0); }
         }
 
         public int Height
         {
-            get { return tiles.GetLength(1); }
+            get { return firstLayerTiles.GetLength(1); }
         }
 
-        private Tile LoadTile(char type, int x, int y)
+        private Tile LoadTile(char type, int layer, int x, int y)
         {
-            switch (type)
+            switch (layer)
             {
-                case '-':
-                    return new Tile(Content.Load<Texture2D>("pac_man_blank_space"), TileCollision.Impassable);
+                case 0:
+                    switch (type)
+                    {
+                        case '-':
+                            return new Tile(Content.Load<Texture2D>("pac_man_wall"), TileCollision.Impassable, TileType.Wall);
+                        case '.':
+                            return new Tile(Content.Load<Texture2D>("pac_man_blank_space"), TileCollision.Passable, TileType.BlankSpace);
+                        default:
+                            return new Tile(Content.Load<Texture2D>("pac_man_blank_space"), TileCollision.Passable, TileType.BlankSpace);
+                    }
+                case 1:
+                    switch (type)
+                    {
+                        case 'P':
+                        case 'p':
+                            return new Tile(Content.Load<Texture2D>("pac_man_character"), TileCollision.Impassable, TileType.Player);
+                        default:
+                            throw new System.Exception(String.Format("ERROR: Value of {0} is not recognized", type));
+                    }
                 default:
-                    return new Tile(Content.Load<Texture2D>("pac_man_wall"), TileCollision.Passable);
+                    throw new System.Exception(String.Format("ERROR: Inavlid layer: ", layer));
             }
+            
+
         }
 
         private void DrawTiles(SpriteBatch spriteBatch)
@@ -127,14 +176,19 @@ namespace PacManProject
             {
                 for (int x = 0; x < Width; ++x)
                 {
-                    // If there is a visible tile in that position
-                    Texture2D texture = tiles[x, y].Texture;
-                    if (texture != null)
-                    {
-                        // Draw it in screen space.
-                        Vector2 position = new Vector2(x, y) * Tile.Size;
-                        spriteBatch.Draw(texture, position, Color.White);
-                    }
+                    Texture2D textureFirstLayer = firstLayerTiles[x, y].Texture;
+                    Texture2D textureSecondLayer = secondLayerTitles[x, y].Texture;
+
+                    Vector2 position = new Vector2(x, y) * Tile.Size;
+                    Rectangle rect = new Rectangle((int)position.X, (int)position.Y, 39, 39);
+
+                    if (textureFirstLayer != null)
+                        spriteBatch.Draw(textureFirstLayer, rect, Color.White);
+                    
+
+                    if (textureSecondLayer != null)
+                        spriteBatch.Draw(textureSecondLayer, rect, Color.White);
+                    
                 }
             }
         }

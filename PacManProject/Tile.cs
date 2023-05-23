@@ -10,6 +10,14 @@ namespace PacManProject
         Impassable = 1,
     }
 
+    enum TileType
+    {
+        Wall,
+        BlankSpace,
+        Player,
+        Enemy,
+    }
+
     struct Tile
     {
         public Texture2D Texture;
@@ -20,7 +28,7 @@ namespace PacManProject
 
         public static readonly Vector2 Size = new Vector2(Width, Height);
 
-        public Tile(Texture2D texture, TileCollision collision)
+        public Tile(Texture2D texture, TileCollision collision, TileType type)
         {
             Texture = texture;
             Collision = collision;
