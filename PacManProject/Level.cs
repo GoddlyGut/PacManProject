@@ -23,8 +23,8 @@ namespace PacManProject
 
     public class Level
     {
-        private Tile[,] firstLayerTiles;
-        private Tile[,] secondLayerTitles;
+        public Tile[,] firstLayerTiles;
+        public Tile[,] playerTile;
         private bool hasPlayerStart = false;
 
 
@@ -74,7 +74,7 @@ namespace PacManProject
                     
 
                     firstLayerTiles = new Tile[width, lines.Count];
-                    secondLayerTitles = new Tile[width, lines.Count];
+                    playerTile = new Tile[width, lines.Count];
 
                     if (!hasPlayerStart)
                         throw new System.Exception("ERROR: Each level must have a player start location");
@@ -86,13 +86,13 @@ namespace PacManProject
                             // to load each tile.
                             char tileType = lines[y][x];
 
-                            firstLayerTiles[x, y] = LoadTile(tileType, 0, x, y);
+                            firstLayerTiles[x, y] = LoadTile(tileType, 0, x + 1, y + 1);
 
                             switch (tileType)
                             {
                                 case 'P':
                                 case 'p':
-                                    secondLayerTitles[x, y] = LoadTile(tileType, 1, x, y);
+                                    playerTile[x, y] = LoadTile(tileType, 1, x + 1, y + 1);
                                     break;
                             }
 
@@ -147,18 +147,18 @@ namespace PacManProject
                     switch (type)
                     {
                         case '-':
-                            return new Tile(Content.Load<Texture2D>("pac_man_wall"), TileCollision.Impassable, TileType.Wall);
+                            return new Tile(Content.Load<Texture2D>("pac_man_wall"), TileCollision.Impassable, TileType.Wall, new Vector2(x, y));
                         case '.':
-                            return new Tile(Content.Load<Texture2D>("pac_man_blank_space"), TileCollision.Passable, TileType.BlankSpace);
+                            return new Tile(Content.Load<Texture2D>("pac_man_blank_space"), TileCollision.Passable, TileType.BlankSpace, new Vector2(x, y));
                         default:
-                            return new Tile(Content.Load<Texture2D>("pac_man_blank_space"), TileCollision.Passable, TileType.BlankSpace);
+                            return new Tile(Content.Load<Texture2D>("pac_man_blank_space"), TileCollision.Passable, TileType.BlankSpace, new Vector2(x, y));
                     }
                 case 1:
                     switch (type)
                     {
                         case 'P':
                         case 'p':
-                            return new Tile(Content.Load<Texture2D>("pac_man_character"), TileCollision.Impassable, TileType.Player);
+                            return new Tile(Content.Load<Texture2D>("pac_man_character"), TileCollision.Impassable, TileType.Player, new Vector2(x, y));
                         default:
                             throw new System.Exception(String.Format("ERROR: Value of {0} is not recognized", type));
                     }
@@ -169,6 +169,17 @@ namespace PacManProject
 
         }
 
+        public void UpdatePlayerLayerTile(/*Vector2 newPosition*/)
+        {
+            if (getPlayerTile() != null)
+            {
+                
+                Tile playerTileSpecific = (Tile)getPlayerTile();
+                playerTile[(int)playerTileSpecific.Position.X + 1, (int)playerTileSpecific.Position.Y + 1] = playerTile[(int)playerTileSpecific.Position.X, (int)playerTileSpecific.Position.Y];
+                //playerTile[(int)playerTileSpecific.Position.X, (int)playerTileSpecific.Position.Y];
+            }
+        }
+
         private void DrawTiles(SpriteBatch spriteBatch)
         {
             // For each tile position
@@ -177,20 +188,46 @@ namespace PacManProject
                 for (int x = 0; x < Width; ++x)
                 {
                     Texture2D textureFirstLayer = firstLayerTiles[x, y].Texture;
-                    Texture2D textureSecondLayer = secondLayerTitles[x, y].Texture;
+                    
 
                     Vector2 position = new Vector2(x, y) * Tile.Size;
                     Rectangle rect = new Rectangle((int)position.X, (int)position.Y, 39, 39);
 
                     if (textureFirstLayer != null)
                         spriteBatch.Draw(textureFirstLayer, rect, Color.White);
-                    
 
-                    if (textureSecondLayer != null)
-                        spriteBatch.Draw(textureSecondLayer, rect, Color.White);
-                    
+
+                    Texture2D playerLayerTile = playerTile[x, y].Texture;
+
+                    if (playerLayerTile != null)
+                        spriteBatch.Draw(playerLayerTile, rect, Color.White);
+
                 }
             }
+
+            
+        }
+
+        public Tile? getPlayerTile()
+        {
+            for (int y = 0; y < Height; ++y)
+            {
+                for (int x = 0; x < Width; ++x)
+                {
+
+                    Texture2D playerLayerTile = playerTile[x, y].Texture;
+
+                    
+
+                    if (playerLayerTile != null)
+                    {
+                        return playerTile[x, y];
+                    }
+                        
+                }
+            }
+
+            return null;
         }
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)

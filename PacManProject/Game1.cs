@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.IO;
+using System.Diagnostics;
 
 namespace PacManProject
 {
@@ -11,6 +12,8 @@ namespace PacManProject
         private SpriteBatch _spriteBatch;
 
         private Level level;
+        private Player player;
+        private bool isPlayerAlive = true;
 
         public Game1()
         {
@@ -26,12 +29,22 @@ namespace PacManProject
             // TODO: Add your initialization logic here
 
             base.Initialize();
+            isPlayerAlive = true;
         }
 
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             level = new Level(@"Content\Levels\0.txt", Services, 0);
+            if (level.getPlayerTile() != null)
+            {
+                Tile possiblePlayerTile = (Tile)level.getPlayerTile();
+                player = new Player(isPlayerAlive, possiblePlayerTile.Position);
+            }
+
+            Debug.WriteLine(player.position);
+            
+            
 
             // TODO: use this.Content to load your game content here
         }
@@ -40,6 +53,9 @@ namespace PacManProject
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+
+            player.Update();
+            level.UpdatePlayerLayerTile();
 
             // TODO: Add your update logic here
 
@@ -56,6 +72,7 @@ namespace PacManProject
             level.Draw(gameTime, _spriteBatch);
 
             // TODO: Add your drawing code here
+
 
             _spriteBatch.End();
 

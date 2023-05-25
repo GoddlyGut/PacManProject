@@ -4,13 +4,13 @@ using Microsoft.Xna.Framework;
 
 namespace PacManProject
 {
-    enum TileCollision
+    public enum TileCollision
     {
         Passable = 0,
         Impassable = 1,
     }
 
-    enum TileType
+    public enum TileType
     {
         Wall,
         BlankSpace,
@@ -18,20 +18,22 @@ namespace PacManProject
         Enemy,
     }
 
-    struct Tile
+    public struct Tile
     {
         public Texture2D Texture;
         public TileCollision Collision;
+        public Vector2 Position;
 
         public const float Width = 40.0f;
         public const float Height = 40.0f;
 
         public static readonly Vector2 Size = new Vector2(Width, Height);
 
-        public Tile(Texture2D texture, TileCollision collision, TileType type)
+        public Tile(Texture2D texture, TileCollision collision, TileType type, Vector2 position)
         {
             Texture = texture;
             Collision = collision;
+            Position = position;
         }
     }
 }
