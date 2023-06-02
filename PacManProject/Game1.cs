@@ -36,11 +36,9 @@ namespace PacManProject
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             level = new Level(@"Content\Levels\0.txt", Services, 0);
-            if (level.getPlayerTile() != null)
-            {
-                Tile possiblePlayerTile = (Tile)level.getPlayerTile();
-                player = new Player(isPlayerAlive, possiblePlayerTile.Position);
-            }
+            Tile possiblePlayerTile = (Tile)level.playerTile;
+            player = new Player(isPlayerAlive, possiblePlayerTile.Position, possiblePlayerTile.Rotation);
+            
 
             Debug.WriteLine(player.position);
             
@@ -55,7 +53,7 @@ namespace PacManProject
                 Exit();
 
             player.Update();
-            level.UpdatePlayerLayerTile();
+            level.UpdatePlayerLayerTile(player);
 
             // TODO: Add your update logic here
 

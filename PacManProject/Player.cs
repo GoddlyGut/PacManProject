@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Input.Touch;
 
 namespace PacManProject
 {
-    class Player
+    public class Player
     {
 /*        public Level Level
         {
@@ -20,12 +20,22 @@ namespace PacManProject
 
         // Physics state
 
-        public Vector2 position;
+        public enum Directions
+        {
+            Left, Right, Up, Down
+        }
 
-        public Player(bool isAlive, Vector2 position)
+        public Directions currentDirection;
+
+        public Vector2 position;
+        public float rotation = 0.0f;
+
+
+        public Player(bool isAlive, Vector2 position, float rotation)
         {
             this.isAlive = isAlive;
             this.position = position;
+            this.rotation = rotation;
         }
 
 
@@ -34,11 +44,44 @@ namespace PacManProject
             
             if (isAlive)
             {
+
+                switch (currentDirection)
+                {
+                    case Directions.Left:
+                        position.X -= 0.1f;
+                        rotation = 180.0f;
+                        break;
+                    case Directions.Right:
+                        position.X += 0.1f;
+                        rotation = 0.0f;
+                        break;
+                    case Directions.Up:
+                        position.Y -= 0.1f;
+                        rotation = -90.0f;
+                        break;
+                    case Directions.Down:
+                        position.Y += 0.1f;
+                        rotation = 90.0f;
+                        break;
+                }
                 
                 if (Keyboard.GetState().IsKeyDown(Keys.Right))
                 {
-                    position.X += 1;
+                    currentDirection= Directions.Right;
                 }
+                else if (Keyboard.GetState().IsKeyDown(Keys.Left))
+                {
+                    currentDirection = Directions.Left;
+                }
+                else if (Keyboard.GetState().IsKeyDown(Keys.Up))
+                {
+                    currentDirection = Directions.Up;
+                }
+                else if (Keyboard.GetState().IsKeyDown(Keys.Down))
+                {
+                    currentDirection = Directions.Down;
+                }
+
             }
         }
     }

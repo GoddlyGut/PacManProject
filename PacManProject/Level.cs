@@ -24,9 +24,9 @@ namespace PacManProject
     public class Level
     {
         public Tile[,] firstLayerTiles;
-        public Tile[,] playerTile;
+        public Tile playerTile;
         private bool hasPlayerStart = false;
-
+        int gridSize = 40;
 
         public ContentManager Content
         {
@@ -74,7 +74,7 @@ namespace PacManProject
                     
 
                     firstLayerTiles = new Tile[width, lines.Count];
-                    playerTile = new Tile[width, lines.Count];
+                    
 
                     if (!hasPlayerStart)
                         throw new System.Exception("ERROR: Each level must have a player start location");
@@ -92,7 +92,7 @@ namespace PacManProject
                             {
                                 case 'P':
                                 case 'p':
-                                    playerTile[x, y] = LoadTile(tileType, 1, x + 1, y + 1);
+                                    playerTile = LoadTile(tileType, 1, x + 1, y + 1);
                                     break;
                             }
 
@@ -169,15 +169,12 @@ namespace PacManProject
 
         }
 
-        public void UpdatePlayerLayerTile(/*Vector2 newPosition*/)
+        public void UpdatePlayerLayerTile(Player player)
         {
-            if (getPlayerTile() != null)
-            {
-                
-                Tile playerTileSpecific = (Tile)getPlayerTile();
-                playerTile[(int)playerTileSpecific.Position.X + 1, (int)playerTileSpecific.Position.Y + 1] = playerTile[(int)playerTileSpecific.Position.X, (int)playerTileSpecific.Position.Y];
-                //playerTile[(int)playerTileSpecific.Position.X, (int)playerTileSpecific.Position.Y];
-            }
+
+            playerTile.Position = player.position;
+            playerTile.Rotation = player.rotation;
+            
         }
 
         private void DrawTiles(SpriteBatch spriteBatch)
@@ -196,39 +193,38 @@ namespace PacManProject
                     if (textureFirstLayer != null)
                         spriteBatch.Draw(textureFirstLayer, rect, Color.White);
 
-
-                    Texture2D playerLayerTile = playerTile[x, y].Texture;
-
-                    if (playerLayerTile != null)
-                        spriteBatch.Draw(playerLayerTile, rect, Color.White);
-
                 }
             }
-
+            Texture2D playerLayerTile = playerTile.Texture;
+            Vector2 playerTilePosition = playerTile.Position * Tile.Size;
             
+            Vector2 gridPosition = new Vector2((int)Math.Floor(playerTilePosition.X / gridSize), (int)Math.Floor(playerTilePosition.Y / gridSize));
+            Vector2 snappedPosition = gridPosition * gridSize;
+
+            Rectangle playerRect = new Rectangle((int)snappedPosition.X, (int)snappedPosition.Y, 39, 39);
+            DrawRectangleCenteredRotation(spriteBatch, playerLayerTile, playerRect, Color.White, (float)(Math.PI / 180) * playerTile.Rotation, false, false);
+            //spriteBatch.Draw(playerLayerTile, playerRect, new Rectangle(0, 0, playerLayerTile.Width, playerLayerTile.Height), Color.White, (float)(Math.PI/180) * playerTile.Rotation, Vector2.Zero, SpriteEffects.None, 0);
+
         }
 
-        public Tile? getPlayerTile()
+        public void DrawRectangleCenteredRotation(SpriteBatch spriteBatch, Texture2D textureImage, Rectangle rectangleAreaToDrawAt, Color color, float rotationInRadians, bool flipVertically, bool flipHorizontally)
         {
-            for (int y = 0; y < Height; ++y)
-            {
-                for (int x = 0; x < Width; ++x)
-                {
+            SpriteEffects seffects = SpriteEffects.None;
+            if (flipHorizontally)
+                seffects = seffects | SpriteEffects.FlipHorizontally;
+            if (flipVertically)
+                seffects = seffects | SpriteEffects.FlipVertically;
 
-                    Texture2D playerLayerTile = playerTile[x, y].Texture;
+            // We must make a couple adjustments in order to properly center this.
+            Rectangle r = rectangleAreaToDrawAt;
+            Rectangle destination = new Rectangle(r.X + r.Width / 2, r.Y + r.Height / 2, r.Width, r.Height);
+            Vector2 originOffset = new Vector2(textureImage.Width / 2, textureImage.Height / 2);
 
-                    
-
-                    if (playerLayerTile != null)
-                    {
-                        return playerTile[x, y];
-                    }
-                        
-                }
-            }
-
-            return null;
+            // This is a full spriteBatch.Draw method it has lots of parameters to fully control the draw.
+            spriteBatch.Draw(textureImage, destination, new Rectangle(0, 0, textureImage.Width, textureImage.Height), color, rotationInRadians, originOffset, seffects, 0);
         }
+
+
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
