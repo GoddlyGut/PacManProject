@@ -16,6 +16,7 @@ namespace PacManProject
         BlankSpace,
         Player,
         Enemy,
+        Coin,
     }
 
     public struct Tile

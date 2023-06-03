@@ -24,6 +24,7 @@ namespace PacManProject
     public class Level
     {
         public Tile[,] firstLayerTiles;
+        public Tile[,] secondLayerTiles;
         public Tile playerTile;
         private bool hasPlayerStart = false;
         int gridSize = 40;
@@ -75,6 +76,7 @@ namespace PacManProject
                     
 
                     firstLayerTiles = new Tile[width, lines.Count];
+                    secondLayerTiles = new Tile[width, lines.Count];
                     
 
                     if (!hasPlayerStart)
@@ -94,6 +96,9 @@ namespace PacManProject
                                 case 'P':
                                 case 'p':
                                     playerTile = LoadTile(tileType, 1, x + 1, y + 1);
+                                    break;
+                                case '.':
+                                    secondLayerTiles[x, y] = LoadTile(tileType, 1, x + 1, y + 1);
                                     break;
                             }
 
@@ -162,6 +167,8 @@ namespace PacManProject
                         case 'P':
                         case 'p':
                             return new Tile(Content.Load<Texture2D>("pac_man_character"), TileCollision.Impassable, TileType.Player, new Vector2(x, y));
+                        case '.':
+                            return new Tile(Content.Load<Texture2D>("pac_man_coin"), TileCollision.Passable, TileType.Coin, new Vector2(x, y));
                         default:
                             throw new System.Exception(String.Format("ERROR: Value of {0} is not recognized", type));
                     }
@@ -176,13 +183,40 @@ namespace PacManProject
         {
 
             playerTile.Position = player.position;
-            Debug.WriteLine(player.position);
             playerTile.Rotation = player.rotation;
 
         }
 
         private void DrawTiles(SpriteBatch spriteBatch, Player player)
         {
+            // For each tile position
+            for (int y = 0; y < Height; ++y)
+            {
+                for (int x = 0; x < Width; ++x)
+                {
+                    Texture2D textureFirstLayer = firstLayerTiles[x, y].Texture;
+                    Texture2D textureSecondLayer = secondLayerTiles[x, y].Texture;
+
+
+                    Vector2 firstLayerCenterPosition = GetCenterPosition(x, y, Tile.Size, new Vector2(39, 39));
+                    Rectangle firstLayerRect = new Rectangle((int)firstLayerCenterPosition.X, (int)firstLayerCenterPosition.Y, 39, 39);
+
+                    Vector2 secondLayerCenterPosition = GetCenterPosition(x, y, Tile.Size, new Vector2(10, 10));
+                    Rectangle secondLayerRect = new Rectangle((int)secondLayerCenterPosition.X, (int)secondLayerCenterPosition.Y, 10, 10);
+
+
+
+
+                    if (textureFirstLayer != null)
+                        spriteBatch.Draw(textureFirstLayer, firstLayerRect, Color.White);
+
+                    if (textureSecondLayer != null)
+                        spriteBatch.Draw(textureSecondLayer, secondLayerRect, Color.White);
+
+                }
+            }
+
+
 
             Texture2D playerLayerTile = playerTile.Texture;
             Vector2 playerTilePosition = playerTile.Position * Tile.Size;
@@ -190,32 +224,17 @@ namespace PacManProject
             Vector2 gridPosition = new Vector2((int)Math.Floor(playerTilePosition.X / gridSize), (int)Math.Floor(playerTilePosition.Y / gridSize));
             Vector2 snappedPosition = gridPosition * gridSize;
 
+            Rectangle playerRect = new Rectangle((int)snappedPosition.X, (int)snappedPosition.Y, 39, 39);
+            DrawRectangleCenteredRotation(spriteBatch, playerLayerTile, playerRect, Color.White, (float)(Math.PI / 180) * playerTile.Rotation, false, false);
+        }
 
-            // For each tile position
-            for (int y = 0; y < Height; ++y)
-            {
-                for (int x = 0; x < Width; ++x)
-                {
-                    Texture2D textureFirstLayer = firstLayerTiles[x, y].Texture;
-                    
-
-                    Vector2 position = new Vector2(x, y) * Tile.Size;
-                    Rectangle rect = new Rectangle((int)position.X, (int)position.Y, 39, 39);
-
-                    if (textureFirstLayer != null)
-                        spriteBatch.Draw(textureFirstLayer, rect, Color.White);
-
-                }
-            }
-
-                
-                Rectangle playerRect = new Rectangle((int)snappedPosition.X, (int)snappedPosition.Y, 39, 39);
-                DrawRectangleCenteredRotation(spriteBatch, playerLayerTile, playerRect, Color.White, (float)(Math.PI / 180) * playerTile.Rotation, false, false);
+        private Vector2 GetCenterPosition(int x, int y, Vector2 tileSize, Vector2 rectSize)
+        {
+            return new Vector2(x, y) * tileSize + tileSize * 0.5f - rectSize * 0.5f;
         }
 
         public bool isColliding(Vector2 position)
         {
-
             Vector2 playerTilePosition = position * Tile.Size;
             Vector2 gridIndex = new Vector2((int)Math.Floor(playerTilePosition.X / Tile.Size.X), (int)Math.Floor(playerTilePosition.Y / Tile.Size.Y));
 

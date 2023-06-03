@@ -57,8 +57,6 @@ namespace PacManProject
             
             if (isAlive)
             {
-
-
                 if (directionInfo.TryGetValue(currentDirection, out var info))
                 {
                     Vector2 proposedPosition = position + info.change * currentLevel.playerMoveSpeed;
