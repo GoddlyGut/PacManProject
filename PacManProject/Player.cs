@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
@@ -19,6 +20,22 @@ namespace PacManProject
         {
             Left, Right, Up, Down
         }
+
+        readonly Dictionary<Directions, (Vector2 change, float rotation)> directionInfo = new Dictionary<Directions, (Vector2 change, float rotation)>
+        {
+            { Directions.Left,  (new Vector2(-1,  0), 180.0f) },
+            { Directions.Right, (new Vector2(1,   0),   0.0f) },
+            { Directions.Up,    (new Vector2(0,  -1), -90.0f) },
+            { Directions.Down,  (new Vector2(0,   1),  90.0f) },
+        };
+
+        Dictionary<Keys, Directions> keyToDirection = new Dictionary<Keys, Directions>
+        {
+            { Keys.Right, Directions.Right },
+            { Keys.Left,  Directions.Left  },
+            { Keys.Up,    Directions.Up    },
+            { Keys.Down,  Directions.Down  }
+        };
 
         public Directions currentDirection;
 
@@ -42,57 +59,27 @@ namespace PacManProject
             {
 
 
-                switch (currentDirection)
+                if (directionInfo.TryGetValue(currentDirection, out var info))
                 {
-                    case Directions.Left:
-                        if (!currentLevel.isColliding(this))
-                        {
-                            position.X -= currentLevel.playerMoveSpeed;
-                        }
+                    Vector2 proposedPosition = position + info.change * currentLevel.playerMoveSpeed;
 
-                        rotation = 180.0f;
-                        break;
-                    case Directions.Right:
-                        if (!currentLevel.isColliding(this))
-                        {
-                            position.X += currentLevel.playerMoveSpeed;
-                        }
+                    if (!currentLevel.isColliding(proposedPosition))
+                    {
+                        position = proposedPosition;
+                    }
 
-                        rotation = 0.0f;
-                        break;
-                    case Directions.Up:
-                        if (!currentLevel.isColliding(this))
-                        {
-                            position.Y -= currentLevel.playerMoveSpeed;
-                        }
+                    rotation = info.rotation;
+                }
 
-                        rotation = -90.0f;
-                        break;
-                    case Directions.Down:
-                        if (!currentLevel.isColliding(this))
-                        {
-                            position.Y += currentLevel.playerMoveSpeed;
-                        }
+                var keyboardState = Keyboard.GetState();
 
-                        rotation = 90.0f;
+                foreach (var pair in keyToDirection)
+                {
+                    if (keyboardState.IsKeyDown(pair.Key))
+                    {
+                        currentDirection = pair.Value;
                         break;
-                }
-                
-                if (Keyboard.GetState().IsKeyDown(Keys.Right))
-                {
-                    currentDirection= Directions.Right;
-                }
-                else if (Keyboard.GetState().IsKeyDown(Keys.Left))
-                {
-                    currentDirection = Directions.Left;
-                }
-                else if (Keyboard.GetState().IsKeyDown(Keys.Up))
-                {
-                    currentDirection = Directions.Up;
-                }
-                else if (Keyboard.GetState().IsKeyDown(Keys.Down))
-                {
-                    currentDirection = Directions.Down;
+                    }
                 }
 
             }

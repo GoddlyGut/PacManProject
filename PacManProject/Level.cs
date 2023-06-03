@@ -211,31 +211,12 @@ namespace PacManProject
                 
                 Rectangle playerRect = new Rectangle((int)snappedPosition.X, (int)snappedPosition.Y, 39, 39);
                 DrawRectangleCenteredRotation(spriteBatch, playerLayerTile, playerRect, Color.White, (float)(Math.PI / 180) * playerTile.Rotation, false, false);
-            
-            
-
         }
 
-        public bool isColliding(Player player)
+        public bool isColliding(Vector2 position)
         {
-            Vector2 predictedPlayerPosition = player.position;
-            switch (player.currentDirection)
-            {
-                case Player.Directions.Left:
-                    predictedPlayerPosition.X -= playerMoveSpeed;
-                    break;
-                case Player.Directions.Right:
-                    predictedPlayerPosition.X += playerMoveSpeed;
-                    break;
-                case Player.Directions.Up:
-                    predictedPlayerPosition.Y -= playerMoveSpeed;
-                    break;
-                case Player.Directions.Down:
-                    predictedPlayerPosition.Y += playerMoveSpeed;
-                    break;
-            }
 
-            Vector2 playerTilePosition = predictedPlayerPosition * Tile.Size;
+            Vector2 playerTilePosition = position * Tile.Size;
             Vector2 gridIndex = new Vector2((int)Math.Floor(playerTilePosition.X / Tile.Size.X), (int)Math.Floor(playerTilePosition.Y / Tile.Size.Y));
 
             if (gridIndex.X < 0 || gridIndex.Y < 0 || gridIndex.X >= Width || gridIndex.Y >= Height)
