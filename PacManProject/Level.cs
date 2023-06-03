@@ -27,6 +27,7 @@ namespace PacManProject
         public Tile playerTile;
         private bool hasPlayerStart = false;
         int gridSize = 40;
+        public float playerMoveSpeed = 0.1f;
 
         public ContentManager Content
         {
@@ -139,6 +140,8 @@ namespace PacManProject
             get { return firstLayerTiles.GetLength(1); }
         }
 
+
+
         private Tile LoadTile(char type, int layer, int x, int y)
         {
             switch (layer)
@@ -173,12 +176,21 @@ namespace PacManProject
         {
 
             playerTile.Position = player.position;
+            Debug.WriteLine(player.position);
             playerTile.Rotation = player.rotation;
-            
+
         }
 
-        private void DrawTiles(SpriteBatch spriteBatch)
+        private void DrawTiles(SpriteBatch spriteBatch, Player player)
         {
+
+            Texture2D playerLayerTile = playerTile.Texture;
+            Vector2 playerTilePosition = playerTile.Position * Tile.Size;
+
+            Vector2 gridPosition = new Vector2((int)Math.Floor(playerTilePosition.X / gridSize), (int)Math.Floor(playerTilePosition.Y / gridSize));
+            Vector2 snappedPosition = gridPosition * gridSize;
+
+
             // For each tile position
             for (int y = 0; y < Height; ++y)
             {
@@ -195,16 +207,44 @@ namespace PacManProject
 
                 }
             }
-            Texture2D playerLayerTile = playerTile.Texture;
-            Vector2 playerTilePosition = playerTile.Position * Tile.Size;
+
+                
+                Rectangle playerRect = new Rectangle((int)snappedPosition.X, (int)snappedPosition.Y, 39, 39);
+                DrawRectangleCenteredRotation(spriteBatch, playerLayerTile, playerRect, Color.White, (float)(Math.PI / 180) * playerTile.Rotation, false, false);
             
-            Vector2 gridPosition = new Vector2((int)Math.Floor(playerTilePosition.X / gridSize), (int)Math.Floor(playerTilePosition.Y / gridSize));
-            Vector2 snappedPosition = gridPosition * gridSize;
+            
 
-            Rectangle playerRect = new Rectangle((int)snappedPosition.X, (int)snappedPosition.Y, 39, 39);
-            DrawRectangleCenteredRotation(spriteBatch, playerLayerTile, playerRect, Color.White, (float)(Math.PI / 180) * playerTile.Rotation, false, false);
-            //spriteBatch.Draw(playerLayerTile, playerRect, new Rectangle(0, 0, playerLayerTile.Width, playerLayerTile.Height), Color.White, (float)(Math.PI/180) * playerTile.Rotation, Vector2.Zero, SpriteEffects.None, 0);
+        }
 
+        public bool isColliding(Player player)
+        {
+            Vector2 predictedPlayerPosition = player.position;
+            switch (player.currentDirection)
+            {
+                case Player.Directions.Left:
+                    predictedPlayerPosition.X -= playerMoveSpeed;
+                    break;
+                case Player.Directions.Right:
+                    predictedPlayerPosition.X += playerMoveSpeed;
+                    break;
+                case Player.Directions.Up:
+                    predictedPlayerPosition.Y -= playerMoveSpeed;
+                    break;
+                case Player.Directions.Down:
+                    predictedPlayerPosition.Y += playerMoveSpeed;
+                    break;
+            }
+
+            Vector2 playerTilePosition = predictedPlayerPosition * Tile.Size;
+            Vector2 gridIndex = new Vector2((int)Math.Floor(playerTilePosition.X / Tile.Size.X), (int)Math.Floor(playerTilePosition.Y / Tile.Size.Y));
+
+            if (gridIndex.X < 0 || gridIndex.Y < 0 || gridIndex.X >= Width || gridIndex.Y >= Height)
+            {
+                // out of grid bounds
+                return true;
+            }
+
+            return firstLayerTiles[(int)gridIndex.X, (int)gridIndex.Y].Collision == TileCollision.Impassable;
         }
 
         public void DrawRectangleCenteredRotation(SpriteBatch spriteBatch, Texture2D textureImage, Rectangle rectangleAreaToDrawAt, Color color, float rotationInRadians, bool flipVertically, bool flipHorizontally)
@@ -226,9 +266,9 @@ namespace PacManProject
 
 
 
-        public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+        public void Draw(GameTime gameTime, SpriteBatch spriteBatch, Player player)
         {
-            DrawTiles(spriteBatch);
+            DrawTiles(spriteBatch, player);
         }
     }
 }

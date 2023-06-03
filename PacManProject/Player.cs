@@ -10,15 +10,10 @@ namespace PacManProject
 {
     public class Player
     {
-/*        public Level Level
-        {
-            get { return level; }
-        }
-        Level level;*/
 
         bool isAlive;
 
-        // Physics state
+        public Level currentLevel;
 
         public enum Directions
         {
@@ -31,11 +26,12 @@ namespace PacManProject
         public float rotation = 0.0f;
 
 
-        public Player(bool isAlive, Vector2 position, float rotation)
+        public Player(bool isAlive, Vector2 position, float rotation, Level currentLevel)
         {
             this.isAlive = isAlive;
             this.position = position;
             this.rotation = rotation;
+            this.currentLevel = currentLevel;
         }
 
 
@@ -45,22 +41,39 @@ namespace PacManProject
             if (isAlive)
             {
 
+
                 switch (currentDirection)
                 {
                     case Directions.Left:
-                        position.X -= 0.1f;
+                        if (!currentLevel.isColliding(this))
+                        {
+                            position.X -= currentLevel.playerMoveSpeed;
+                        }
+
                         rotation = 180.0f;
                         break;
                     case Directions.Right:
-                        position.X += 0.1f;
+                        if (!currentLevel.isColliding(this))
+                        {
+                            position.X += currentLevel.playerMoveSpeed;
+                        }
+
                         rotation = 0.0f;
                         break;
                     case Directions.Up:
-                        position.Y -= 0.1f;
+                        if (!currentLevel.isColliding(this))
+                        {
+                            position.Y -= currentLevel.playerMoveSpeed;
+                        }
+
                         rotation = -90.0f;
                         break;
                     case Directions.Down:
-                        position.Y += 0.1f;
+                        if (!currentLevel.isColliding(this))
+                        {
+                            position.Y += currentLevel.playerMoveSpeed;
+                        }
+
                         rotation = 90.0f;
                         break;
                 }

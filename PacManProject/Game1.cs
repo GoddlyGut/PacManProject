@@ -37,7 +37,7 @@ namespace PacManProject
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             level = new Level(@"Content\Levels\0.txt", Services, 0);
             Tile possiblePlayerTile = (Tile)level.playerTile;
-            player = new Player(isPlayerAlive, possiblePlayerTile.Position, possiblePlayerTile.Rotation);
+            player = new Player(isPlayerAlive, possiblePlayerTile.Position, possiblePlayerTile.Rotation, level);
             
 
             Debug.WriteLine(player.position);
@@ -67,7 +67,7 @@ namespace PacManProject
 
             _spriteBatch.Begin();
 
-            level.Draw(gameTime, _spriteBatch);
+            level.Draw(gameTime, _spriteBatch, player);
 
             // TODO: Add your drawing code here
 
