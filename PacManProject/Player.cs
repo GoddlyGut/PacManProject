@@ -62,7 +62,7 @@ namespace PacManProject
                 isAlive = false;
             }
 
-            if (isAlive)
+            if (isAlive && !currentLevel.isLevelCompleted)
             {
                 if (directionInfo.TryGetValue(currentDirection, out var info))
                 {

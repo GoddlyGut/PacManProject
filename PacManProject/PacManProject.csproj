@@ -23,6 +23,9 @@
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />
   </ItemGroup>
 	<ItemGroup>
+    <None Update="Content\Levels\1.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Content\Levels\0.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

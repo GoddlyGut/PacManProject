@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Framework.Utilities.Deflate;
@@ -29,6 +30,8 @@ namespace PacManProject
         private bool hasPlayerStart = false;
         int gridSize = 40;
         public float playerMoveSpeed = 0.1f;
+        int numberOfCoins;
+        public bool isLevelCompleted = false;
 
         public ContentManager Content
         {
@@ -36,7 +39,7 @@ namespace PacManProject
         }
         ContentManager content;
 
-        public Level(string lvlPath, IServiceProvider serviceProvider, int levelIndex)
+        public Level(string lvlPath, IServiceProvider serviceProvider)
         {
             content = new ContentManager(serviceProvider, "Content");
 
@@ -120,7 +123,7 @@ namespace PacManProject
         {
             foreach (char c in line)
             {
-                if (c == '.') { }
+                if (c == '.') { numberOfCoins++; }
                 else if (c == '-') { }
                 else if (c == 'e' || c == 'E') { }
                 else if (c == 'p' || c == 'P') 
@@ -256,14 +259,27 @@ namespace PacManProject
 
             if (targetTile.Collision == TileCollision.Passable && targetTile.Type == TileType.Coin)
             {
+                numberOfCoins--;
+                Debug.WriteLine(numberOfCoins);
                 Score.playerScore++;
                 secondLayerTiles[(int)gridIndex.X, (int)gridIndex.Y] = new Tile();
+
+                if (numberOfCoins <= 0)
+                {
+                    isLevelCompleted = true;
+                }
                 
             }
             else if (targetTile.Collision == TileCollision.Passable && targetTile.Type == TileType.Enemy)
             {
                 player.numberOfLives--;
                 secondLayerTiles[(int)gridIndex.X, (int)gridIndex.Y] = new Tile();
+                Content.Load<SoundEffect>("pac_man_explosion_effect").Play();
+
+                if (player.numberOfLives <= 0)
+                {
+                    Content.Load<SoundEffect>("pac_man_lose").Play();
+                }
             }
 
             if (gridIndex.X < 0 || gridIndex.Y < 0 || gridIndex.X >= Width || gridIndex.Y >= Height)

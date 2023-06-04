@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.IO;
 using System.Diagnostics;
+using Microsoft.Xna.Framework.Audio;
 
 namespace PacManProject
 {
@@ -11,6 +12,7 @@ namespace PacManProject
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
+        private int currentLevel = 0;
         private Level level;
         private Player player;
         private bool isPlayerAlive = true;
@@ -48,6 +50,12 @@ namespace PacManProject
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            if (level.isLevelCompleted)
+            {
+                currentLevel++;
+                LoadNextLevel(currentLevel);
+            }
+
             player.Update();
             level.UpdatePlayerLayerTile(player);
 
@@ -65,12 +73,19 @@ namespace PacManProject
         private void ResetGame()
         {
             Score.playerScore = 0;
-            level = new Level(@"Content\Levels\0.txt", Services, 0);
+            level = new Level(@"Content\Levels\0.txt", Services);
             Tile possiblePlayerTile = (Tile)level.playerTile;
             player = new Player(isPlayerAlive, possiblePlayerTile.Position, possiblePlayerTile.Rotation, level);
 
 
             Debug.WriteLine(player.position);
+        }
+
+        private void LoadNextLevel(int levelNumber)
+        {
+            level = new Level(@"Content\Levels\" + levelNumber.ToString() + ".txt", Services);
+            Tile possiblePlayerTile = (Tile)level.playerTile;
+            player = new Player(isPlayerAlive, possiblePlayerTile.Position, possiblePlayerTile.Rotation, level);
         }
 
         protected override void Draw(GameTime gameTime)
@@ -88,7 +103,7 @@ namespace PacManProject
             Rectangle heartRectangle2 = new Rectangle(525, 5, 30, 30);
             Rectangle heartRectangle3 = new Rectangle(485, 5, 30, 30);
 
-            _spriteBatch.DrawString(Content.Load<SpriteFont>("default"), "LEVEL:1", new Vector2(172, 7), Color.White);
+            _spriteBatch.DrawString(Content.Load<SpriteFont>("default"), "LEVEL:" + (currentLevel + 1).ToString(), new Vector2(172, 7), Color.White);
 
             _spriteBatch.Draw(Content.Load<Texture2D>("pac_man_heart"), heartRectangle1, player.numberOfLives > 0 ? Color.Red : Color.Gray);
             _spriteBatch.Draw(Content.Load<Texture2D>("pac_man_heart"), heartRectangle2, player.numberOfLives > 1 ? Color.Red : Color.Gray);

@@ -68,6 +68,12 @@
 /processorParam:TextureFormat=Color
 /build:pac_man_coin.png
 
+#begin pac_man_explosion_effect.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:pac_man_explosion_effect.wav
+
 #begin pac_man_heart.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -79,6 +85,12 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:pac_man_heart.png
+
+#begin pac_man_lose.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:pac_man_lose.wav
 
 #begin pac_man_reset_icon.png
 /importer:TextureImporter
