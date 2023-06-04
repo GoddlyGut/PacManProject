@@ -100,6 +100,10 @@ namespace PacManProject
                                 case '.':
                                     secondLayerTiles[x, y] = LoadTile(tileType, 1, x + 1, y + 1);
                                     break;
+                                case 'E':
+                                case 'e':
+                                    secondLayerTiles[x, y] = LoadTile(tileType, 1, x + 1, y + 1);
+                                    break;
                             }
 
 
@@ -169,6 +173,9 @@ namespace PacManProject
                             return new Tile(Content.Load<Texture2D>("pac_man_character"), TileCollision.Impassable, TileType.Player, new Vector2(x, y));
                         case '.':
                             return new Tile(Content.Load<Texture2D>("pac_man_coin"), TileCollision.Passable, TileType.Coin, new Vector2(x, y));
+                        case 'E':
+                        case 'e':
+                            return new Tile(Content.Load<Texture2D>("pac_man_bomb"), TileCollision.Passable, TileType.Enemy, new Vector2(x, y));
                         default:
                             throw new System.Exception(String.Format("ERROR: Value of {0} is not recognized", type));
                     }
@@ -201,8 +208,15 @@ namespace PacManProject
                     Vector2 firstLayerCenterPosition = GetCenterPosition(x, y, Tile.Size, new Vector2(39, 39));
                     Rectangle firstLayerRect = new Rectangle((int)firstLayerCenterPosition.X, (int)firstLayerCenterPosition.Y, 39, 39);
 
-                    Vector2 secondLayerCenterPosition = GetCenterPosition(x, y, Tile.Size, new Vector2(10, 10));
-                    Rectangle secondLayerRect = new Rectangle((int)secondLayerCenterPosition.X, (int)secondLayerCenterPosition.Y, 10, 10);
+                    int secondLayerTileSize = 10;
+
+                    if (secondLayerTiles[x, y].Type == TileType.Enemy)
+                    {
+                        secondLayerTileSize = 30;
+                    }
+
+                    Vector2 secondLayerCenterPosition = GetCenterPosition(x, y, Tile.Size, new Vector2(secondLayerTileSize, secondLayerTileSize));
+                    Rectangle secondLayerRect = new Rectangle((int)secondLayerCenterPosition.X, (int)secondLayerCenterPosition.Y, secondLayerTileSize, secondLayerTileSize);
 
 
 
@@ -233,13 +247,28 @@ namespace PacManProject
             return new Vector2(x, y) * tileSize + tileSize * 0.5f - rectSize * 0.5f;
         }
 
-        public bool isColliding(Vector2 position)
+        public bool isColliding(Vector2 position, Player player)
         {
             Vector2 playerTilePosition = position * Tile.Size;
             Vector2 gridIndex = new Vector2((int)Math.Floor(playerTilePosition.X / Tile.Size.X), (int)Math.Floor(playerTilePosition.Y / Tile.Size.Y));
 
+            Tile targetTile = secondLayerTiles[(int)gridIndex.X, (int)gridIndex.Y];
+
+            if (targetTile.Collision == TileCollision.Passable && targetTile.Type == TileType.Coin)
+            {
+                Score.playerScore++;
+                secondLayerTiles[(int)gridIndex.X, (int)gridIndex.Y] = new Tile();
+                
+            }
+            else if (targetTile.Collision == TileCollision.Passable && targetTile.Type == TileType.Enemy)
+            {
+                player.numberOfLives--;
+                secondLayerTiles[(int)gridIndex.X, (int)gridIndex.Y] = new Tile();
+            }
+
             if (gridIndex.X < 0 || gridIndex.Y < 0 || gridIndex.X >= Width || gridIndex.Y >= Height)
             {
+                
                 // out of grid bounds
                 return true;
             }

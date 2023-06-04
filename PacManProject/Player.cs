@@ -12,7 +12,7 @@ namespace PacManProject
     public class Player
     {
 
-        bool isAlive;
+        
 
         public Level currentLevel;
 
@@ -42,6 +42,9 @@ namespace PacManProject
         public Vector2 position;
         public float rotation = 0.0f;
 
+        public int numberOfLives = 3;
+        public bool isAlive;
+
 
         public Player(bool isAlive, Vector2 position, float rotation, Level currentLevel)
         {
@@ -54,14 +57,18 @@ namespace PacManProject
 
         public void Update()
         {
-            
+            if (numberOfLives <= 0) 
+            {
+                isAlive = false;
+            }
+
             if (isAlive)
             {
                 if (directionInfo.TryGetValue(currentDirection, out var info))
                 {
                     Vector2 proposedPosition = position + info.change * currentLevel.playerMoveSpeed;
 
-                    if (!currentLevel.isColliding(proposedPosition))
+                    if (!currentLevel.isColliding(proposedPosition, this))
                     {
                         position = proposedPosition;
                     }

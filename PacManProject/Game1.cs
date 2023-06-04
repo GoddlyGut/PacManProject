@@ -14,6 +14,7 @@ namespace PacManProject
         private Level level;
         private Player player;
         private bool isPlayerAlive = true;
+        private Rectangle resetButton = new Rectangle(565, 565, 30, 30);
 
         public Game1()
         {
@@ -35,14 +36,9 @@ namespace PacManProject
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            level = new Level(@"Content\Levels\0.txt", Services, 0);
-            Tile possiblePlayerTile = (Tile)level.playerTile;
-            player = new Player(isPlayerAlive, possiblePlayerTile.Position, possiblePlayerTile.Rotation, level);
-            
 
-            Debug.WriteLine(player.position);
-            
-            
+            ResetGame();
+
 
             // TODO: use this.Content to load your game content here
         }
@@ -57,7 +53,24 @@ namespace PacManProject
 
             // TODO: Add your update logic here
 
+            MouseState mouse = Mouse.GetState();
+            if (resetButton.Contains(mouse.Position) && mouse.LeftButton == ButtonState.Pressed)
+            {
+                ResetGame();
+            }
+
             base.Update(gameTime);
+        }
+
+        private void ResetGame()
+        {
+            Score.playerScore = 0;
+            level = new Level(@"Content\Levels\0.txt", Services, 0);
+            Tile possiblePlayerTile = (Tile)level.playerTile;
+            player = new Player(isPlayerAlive, possiblePlayerTile.Position, possiblePlayerTile.Rotation, level);
+
+
+            Debug.WriteLine(player.position);
         }
 
         protected override void Draw(GameTime gameTime)
@@ -69,6 +82,24 @@ namespace PacManProject
 
             level.Draw(gameTime, _spriteBatch, player);
 
+            _spriteBatch.DrawString(Content.Load<SpriteFont>("default"), Score.playerScore.ToString(), new Vector2(12,7), Color.White);
+
+            Rectangle heartRectangle1 = new Rectangle(565, 5, 30, 30);
+            Rectangle heartRectangle2 = new Rectangle(525, 5, 30, 30);
+            Rectangle heartRectangle3 = new Rectangle(485, 5, 30, 30);
+
+            _spriteBatch.DrawString(Content.Load<SpriteFont>("default"), "LEVEL:1", new Vector2(172, 7), Color.White);
+
+            _spriteBatch.Draw(Content.Load<Texture2D>("pac_man_heart"), heartRectangle1, player.numberOfLives > 0 ? Color.Red : Color.Gray);
+            _spriteBatch.Draw(Content.Load<Texture2D>("pac_man_heart"), heartRectangle2, player.numberOfLives > 1 ? Color.Red : Color.Gray);
+            _spriteBatch.Draw(Content.Load<Texture2D>("pac_man_heart"), heartRectangle3, player.numberOfLives > 2 ? Color.Red : Color.Gray);
+
+            if (!player.isAlive)
+            {
+                _spriteBatch.DrawString(Content.Load<SpriteFont>("default"), "YOU LOST!", new Vector2(125, 565), Color.White);
+                _spriteBatch.Draw(Content.Load<Texture2D>("pac_man_reset_icon"), resetButton, Color.White);
+            }
+           
             // TODO: Add your drawing code here
 
 

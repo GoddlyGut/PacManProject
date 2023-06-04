@@ -25,6 +25,7 @@ namespace PacManProject
         public TileCollision Collision;
         public Vector2 Position;
         public float Rotation = 0.0f;
+        public TileType Type;
 
         public const float Width = 40.0f;
         public const float Height = 40.0f;
@@ -35,8 +36,10 @@ namespace PacManProject
         {
             Texture = texture;
             Collision = collision;
+            Type = type;
             Position = position;
             Rotation = rotation;
+
         }
     }
 }
