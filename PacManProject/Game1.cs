@@ -60,10 +60,13 @@ namespace PacManProject
                 if (maxNumLevels == currentLevel + 1)
                 {
                     GameStats.didWin = true;
-                    return;
                 }
-                currentLevel++;
-                LoadNextLevel(currentLevel);
+                else
+                {
+                    currentLevel++;
+                    LoadNextLevel(currentLevel);
+                }
+                
             }
 
             player.Update();
@@ -87,9 +90,6 @@ namespace PacManProject
             level = new Level(@"Content\Levels\0.txt", Services);
             Tile possiblePlayerTile = (Tile)level.playerTile;
             player = new Player(isPlayerAlive, possiblePlayerTile.Position, possiblePlayerTile.Rotation, level);
-
-
-            Debug.WriteLine(player.position);
         }
 
         private void LoadNextLevel(int levelNumber)

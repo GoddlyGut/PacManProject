@@ -27,10 +27,13 @@ namespace PacManProject
         public Tile[,] firstLayerTiles;
         public Tile[,] secondLayerTiles;
         public Tile playerTile;
-        private bool hasPlayerStart = false;
+        
         int gridSize = 40;
-        public float playerMoveSpeed = 0.1f;
         int numberOfCoins;
+
+        public float playerMoveSpeed = 0.1f;
+        
+        private bool hasPlayerStart = false;
         public bool isLevelCompleted = false;
 
         public ContentManager Content
@@ -92,20 +95,20 @@ namespace PacManProject
                             // to load each tile.
                             char tileType = lines[y][x];
 
-                            firstLayerTiles[x, y] = LoadTile(tileType, 0, x + 1, y + 1);
+                            firstLayerTiles[x, y] = LoadTile(tileType, 0, x, y);
 
                             switch (tileType)
                             {
                                 case 'P':
                                 case 'p':
-                                    playerTile = LoadTile(tileType, 1, x + 1, y + 1);
+                                    playerTile = LoadTile(tileType, 1, x, y);
                                     break;
                                 case '.':
-                                    secondLayerTiles[x, y] = LoadTile(tileType, 1, x + 1, y + 1);
+                                    secondLayerTiles[x, y] = LoadTile(tileType, 1, x, y);
                                     break;
                                 case 'E':
                                 case 'e':
-                                    secondLayerTiles[x, y] = LoadTile(tileType, 1, x + 1, y + 1);
+                                    secondLayerTiles[x, y] = LoadTile(tileType, 1, x, y);
                                     break;
                             }
 
@@ -260,7 +263,6 @@ namespace PacManProject
             if (targetTile.Collision == TileCollision.Passable && targetTile.Type == TileType.Coin)
             {
                 numberOfCoins--;
-                Debug.WriteLine(numberOfCoins);
                 GameStats.playerScore++;
                 secondLayerTiles[(int)gridIndex.X, (int)gridIndex.Y] = new Tile();
 

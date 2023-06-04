@@ -37,7 +37,7 @@ namespace PacManProject
             { Keys.Down,  Directions.Down  }
         };
 
-        public Directions currentDirection;
+        public Directions? currentDirection = null;
 
         public Vector2 position;
         public float rotation = 0.0f;
@@ -64,17 +64,22 @@ namespace PacManProject
 
             if (isAlive && !currentLevel.isLevelCompleted && !GameStats.didWin)
             {
-                if (directionInfo.TryGetValue(currentDirection, out var info))
+                if (currentDirection != null)
                 {
-                    Vector2 proposedPosition = position + info.change * currentLevel.playerMoveSpeed;
-
-                    if (!currentLevel.isColliding(proposedPosition, this))
+                    if (directionInfo.TryGetValue(currentDirection ?? Directions.Left, out var info))
                     {
-                        position = proposedPosition;
-                    }
+                        Debug.WriteLine(currentDirection);
+                        Vector2 proposedPosition = position + info.change * currentLevel.playerMoveSpeed;
 
-                    rotation = info.rotation;
+                        if (!currentLevel.isColliding(proposedPosition, this))
+                        {
+                            position = proposedPosition;
+                        }
+
+                        rotation = info.rotation;
+                    }
                 }
+                
 
                 var keyboardState = Keyboard.GetState();
 
