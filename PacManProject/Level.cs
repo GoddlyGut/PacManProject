@@ -261,7 +261,7 @@ namespace PacManProject
             {
                 numberOfCoins--;
                 Debug.WriteLine(numberOfCoins);
-                Score.playerScore++;
+                GameStats.playerScore++;
                 secondLayerTiles[(int)gridIndex.X, (int)gridIndex.Y] = new Tile();
 
                 if (numberOfCoins <= 0)

@@ -7,16 +7,22 @@ using Microsoft.Xna.Framework.Audio;
 
 namespace PacManProject
 {
+    public static class GameStats
+    {
+        public static bool didWin = false;
+        public static int playerScore = 0;
+    }
+
     public class Game1 : Game
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-
         private int currentLevel = 0;
+        int maxNumLevels = 2;
         private Level level;
         private Player player;
-        private bool isPlayerAlive = true;
         private Rectangle resetButton = new Rectangle(565, 565, 30, 30);
+        private bool isPlayerAlive = true;
 
         public Game1()
         {
@@ -32,7 +38,6 @@ namespace PacManProject
             // TODO: Add your initialization logic here
 
             base.Initialize();
-            isPlayerAlive = true;
         }
 
         protected override void LoadContent()
@@ -52,6 +57,11 @@ namespace PacManProject
 
             if (level.isLevelCompleted)
             {
+                if (maxNumLevels == currentLevel + 1)
+                {
+                    GameStats.didWin = true;
+                    return;
+                }
                 currentLevel++;
                 LoadNextLevel(currentLevel);
             }
@@ -73,7 +83,7 @@ namespace PacManProject
         private void ResetGame()
         {
             currentLevel = 0;
-            Score.playerScore = 0;
+            GameStats.playerScore = 0;
             level = new Level(@"Content\Levels\0.txt", Services);
             Tile possiblePlayerTile = (Tile)level.playerTile;
             player = new Player(isPlayerAlive, possiblePlayerTile.Position, possiblePlayerTile.Rotation, level);
@@ -98,13 +108,13 @@ namespace PacManProject
 
             level.Draw(gameTime, _spriteBatch, player);
 
-            _spriteBatch.DrawString(Content.Load<SpriteFont>("default"), Score.playerScore.ToString(), new Vector2(12,7), Color.White);
+            _spriteBatch.DrawString(Content.Load<SpriteFont>("default"), GameStats.playerScore.ToString(), new Vector2(12,5), Color.White);
 
             Rectangle heartRectangle1 = new Rectangle(565, 5, 30, 30);
             Rectangle heartRectangle2 = new Rectangle(525, 5, 30, 30);
             Rectangle heartRectangle3 = new Rectangle(485, 5, 30, 30);
 
-            _spriteBatch.DrawString(Content.Load<SpriteFont>("default"), "LEVEL:" + (currentLevel + 1).ToString(), new Vector2(172, 7), Color.White);
+            _spriteBatch.DrawString(Content.Load<SpriteFont>("default"), "LEVEL:" + (currentLevel + 1).ToString(), new Vector2(172, 5), Color.White);
 
             _spriteBatch.Draw(Content.Load<Texture2D>("pac_man_heart"), heartRectangle1, player.numberOfLives > 0 ? Color.Red : Color.Gray);
             _spriteBatch.Draw(Content.Load<Texture2D>("pac_man_heart"), heartRectangle2, player.numberOfLives > 1 ? Color.Red : Color.Gray);
@@ -113,6 +123,12 @@ namespace PacManProject
             if (!player.isAlive)
             {
                 _spriteBatch.DrawString(Content.Load<SpriteFont>("default"), "YOU LOST!", new Vector2(125, 565), Color.White);
+                _spriteBatch.Draw(Content.Load<Texture2D>("pac_man_reset_icon"), resetButton, Color.White);
+            }
+
+            if (GameStats.didWin)
+            {
+                _spriteBatch.DrawString(Content.Load<SpriteFont>("default"), "YOU WON!", new Vector2(167, 565), Color.White);
                 _spriteBatch.Draw(Content.Load<Texture2D>("pac_man_reset_icon"), resetButton, Color.White);
             }
            
