@@ -72,6 +72,7 @@ namespace PacManProject
 
         private void ResetGame()
         {
+            currentLevel = 0;
             Score.playerScore = 0;
             level = new Level(@"Content\Levels\0.txt", Services);
             Tile possiblePlayerTile = (Tile)level.playerTile;
