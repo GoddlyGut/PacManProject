@@ -68,7 +68,6 @@ namespace PacManProject
                 {
                     if (directionInfo.TryGetValue(currentDirection ?? Directions.Left, out var info))
                     {
-                        Debug.WriteLine(currentDirection);
                         Vector2 proposedPosition = position + info.change * currentLevel.playerMoveSpeed;
 
                         if (!currentLevel.isColliding(proposedPosition, this))

@@ -18,7 +18,7 @@ namespace PacManProject
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private int currentLevel = 0;
-        int maxNumLevels = 2;
+        int maxNumLevels = 6;
         private Level level;
         private Player player;
         private Rectangle resetButton = new Rectangle(565, 565, 30, 30);
@@ -86,6 +86,7 @@ namespace PacManProject
         private void ResetGame()
         {
             currentLevel = 0;
+            GameStats.didWin = false;
             GameStats.playerScore = 0;
             level = new Level(@"Content\Levels\0.txt", Services);
             Tile possiblePlayerTile = (Tile)level.playerTile;
